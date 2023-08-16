@@ -1,3 +1,6 @@
+`default_nettype none
+`timescale 1ns/1ps
+
 /**
  * A 8-bit wide, fifo of depth 32.
  **/
@@ -32,8 +35,8 @@ module fifo(clk, rst_n, ui_in, uo_out, uio_in, uio_out);
 reg [7:0] data_out;
 assign uo_out = data_out;
 
-reg [7:0] head_idx;
-reg [7:0] tail_idx;
+reg [4:0] head_idx; // 2^4 == 32
+reg [4:0] tail_idx;
 reg underflow_reg;
 reg overflow_reg;
 assign underflow = underflow_reg;
@@ -46,7 +49,17 @@ assign reset = ~rst_n;
 // assign empty = head_idx == 0;
 assign full = 0; // tail_idx == head_idx;
 // TODO: this won't work when head_idx wraps around.
-assign empty = ((head_idx - tail_idx) == 0) ? 1'b1 : 1'b0;
+assign empty = (head_idx == tail_idx) ? 1'b1 : 1'b0;
+
+wire do_write;
+assign do_write = write_enable && ~full;
+
+wire do_read;
+assign do_read = read_request && ~empty;
+
+// Trying to read and write at the same time causes a bus conflict.
+wire bus_conflict;
+assign bus_conflict = write_enable && read_request;
 
 always @(posedge clk) begin
     if (reset) begin
@@ -63,7 +76,7 @@ always @(posedge clk) begin
 end
 
 always @(posedge clk) begin
-    if (read_request && ~empty) begin
+    if (do_read) begin
         buffer_reads <= buffer_reads + 1;
         data_out <= buffer[tail_idx];
         tail_idx <= tail_idx + 1; // todo: mod the length in bytes. we need wraparound.
@@ -76,10 +89,10 @@ always @(posedge clk) begin
 end
 
 always @(posedge clk) begin
-    if (write_enable && ~full) begin
+    if (do_write) begin
         $display("in write path with non-full fifo");
         buffer[head_idx] <= ui_in;
-        tail_idx = head_idx;
+        tail_idx <= head_idx;
         head_idx <= head_idx + 1; // todo: use mod to wraparound.
         overflow_reg <= 0;
         buffer_writes <= buffer_writes + 1;

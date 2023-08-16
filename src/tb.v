@@ -16,24 +16,6 @@ module tb ();
         #1;
     end
 
-/*
-    // the following flags are assigned as status pins on uio_out
-    wire empty;
-    assign empty = uio_out[0];
-    wire full = uio_out[1];
-    wire underflow;
-    assign underflow = uio_out[2];
-    wire overflow;
-    assign overflow = uio_out[3];
-    wire almost_empty = uio_out[4]; // TODO: unused
-    wire almost_full = uio_out[5]; // TODO: unused
-    */
-    wire write_enable;
-    assign write_enable = uio_out[6];
-    wire read_request = uio_out[7];
-
-    //assign uio_oe = 8'b1111_1100;
-
     // wire up the inputs and outputs
     wire  clk;
     wire  rst_n;

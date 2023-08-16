@@ -34,3 +34,13 @@ MODULE = test
 
 # include cocotb's make rules to take care of the simulator setup
 include $(shell cocotb-config --makefiles)/Makefile.sim
+
+
+lint:
+	iverilog -Wall $(VERILOG_SOURCES)
+	verilator --timing --lint-only tb.v
+
+# Matches what the GDS github task uses.
+lint_strict:
+	iverilog -Wall $(VERILOG_SOURCES)
+	verilator --timing --lint-only -Wall tb.v
