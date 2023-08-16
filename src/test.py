@@ -27,7 +27,7 @@ async def test_fifo(dut):
 
         await ClockCycles(dut.clk, 1)
         dut.uio_out.value = 0x80  # disable write_enable, enable read_request
-        # bug: I have to wait 2 cycles after issuing a read request for the data to be on the wire.
+        # Due to clocking, I have to wait 2 cycles before buffer is updated.
         await ClockCycles(dut.clk, 2)
         assert int(dut.uo_out.value) == read_data[i]
 

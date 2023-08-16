@@ -35,7 +35,8 @@ module fifo(clk, rst_n, ui_in, uo_out, uio_in, uio_out);
 reg [7:0] data_out;
 assign uo_out = data_out;
 
-reg [4:0] head_idx; // 2^4 == 32
+// these indices are sized for our depth 32 internal buffer.
+reg [4:0] head_idx;
 reg [4:0] tail_idx;
 reg underflow_reg;
 reg overflow_reg;
@@ -46,8 +47,8 @@ reg [7:0] buffer [31:0];
 wire reset;
 assign reset = ~rst_n;
 
-assign full = tail_idx == (head_idx - 1);
 // TODO: this won't work when head_idx wraps around.
+assign full = tail_idx == (head_idx - 1);
 assign empty = (head_idx == tail_idx) ? 1'b1 : 1'b0;
 
 wire do_write;
