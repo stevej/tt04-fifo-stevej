@@ -27,13 +27,11 @@ async def test_fifo(dut):
 
         await ClockCycles(dut.clk, 1)
         dut.uio_out.value = 0x80  # disable write_enable, enable read_request
-        # Due to clocking, I have to wait 2 cycles before buffer is updated.
+        # Due to clocking, I have to wait 2 cycles before the fifo update is available for read.
         await ClockCycles(dut.clk, 2)
         assert int(dut.uo_out.value) == read_data[i]
 
-#    for i in range(len(read_data)):
-#        dut._log.info(f"test.py reading at index {i}")
-
+# TODO
 # add items to fifo until full and check overflow.
 # underflow results in a status bit
 # wire up almost_full and almost_empty
