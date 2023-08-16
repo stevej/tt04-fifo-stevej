@@ -46,8 +46,7 @@ reg [7:0] buffer [31:0];
 wire reset;
 assign reset = ~rst_n;
 
-// assign empty = head_idx == 0;
-assign full = 0; // tail_idx == head_idx;
+assign full = tail_idx == (head_idx - 1);
 // TODO: this won't work when head_idx wraps around.
 assign empty = (head_idx == tail_idx) ? 1'b1 : 1'b0;
 
