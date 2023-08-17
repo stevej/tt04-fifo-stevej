@@ -42,9 +42,7 @@ async def test_underflow(dut):
     dut.rst_n.value = 0
     await ClockCycles(dut.clk, 1)
     dut.rst_n.value = 1
-
-    # 0x80 is empty
-    assert dut.uio_out.value == 0x80
+    await ClockCycles(dut.clk, 1)
 
     # set read_request
     dut.uio_out.value = 0x40

@@ -5,43 +5,31 @@
  * A 8-bit wide, fifo of depth 32.
  **/
 module fifo(clk, rst_n, ui_in, uo_out, uio_in, uio_out);
-    input  wire [7:0] ui_in;    // Dedicated inputs - data sent to the fifo
-    output wire [7:0] uo_out;    // Dedicated outputs - data sent from the fifo
-    input  wire [7:0] uio_in;   // IOs: Bidirectional Input path
-    output wire [7:0] uio_out;  // IOs: Bidirectional Output path
-    input  wire       clk;      // clock
-    input  wire       rst_n;    // reset_n - low to reset
+input  wire [7:0] ui_in;    // Dedicated inputs - data sent to the fifo
+output reg [7:0] uo_out;    // Dedicated outputs - data sent from the fifo
+input  wire [7:0] uio_in;   // IOs: Bidirectional Input path
+output reg [7:0] uio_out;  // IOs: Bidirectional Output path
+input  wire       clk;      // clock
+input  wire       rst_n;    // reset_n - low to reset
 
-    // the following flags are assigned as status pins on uio_out
-    wire empty;
-    assign empty = uio_out[0];
-    wire full;
-    assign full = uio_out[1];
-    wire underflow;
-    assign underflow = uio_out[2];
-    wire overflow;
-    assign overflow = uio_out[3];
-    wire almost_empty;
-    assign almost_empty = uio_out[4]; // TODO: unused
-    wire almost_full;
-    assign almost_full = uio_out[5]; // TODO: unused
-    wire write_enable;
-    assign write_enable = uio_out[6];
-    wire read_request;
-    assign read_request = uio_out[7];
-    reg [31:0] buffer_writes;
-    reg [31:0] buffer_reads;
+// the following flags are assigned as status pins on uio_out
+reg empty; // uio_out[0]
+reg full; // uio_out[1]
+reg underflow; // ui_out[2]
+reg overflow; // uio_out[3]
+reg almost_empty; // uio_out[4]
+reg almost_full; // uio_out[5]
+wire write_enable; // uio_out[6]
+wire read_request; // uio_out[7]
 
-reg [7:0] data_out;
-assign uo_out = data_out;
+reg [31:0] buffer_writes; // used?
+reg [31:0] buffer_reads;
 
+assign write_enable = uio_out[6];
+assign read_request = uio_out[7];
 // these indices are sized for our depth 32 internal buffer.
 reg [4:0] head_idx;
 reg [4:0] tail_idx;
-reg underflow_reg;
-reg overflow_reg;
-assign underflow = underflow_reg;
-assign overflow = overflow_reg;
 
 reg [7:0] buffer [31:0];
 wire reset;
@@ -53,9 +41,13 @@ assign empty = (head_idx == tail_idx) ? 1'b1 : 1'b0;
 
 wire do_write;
 assign do_write = write_enable && ~full;
+wire overflow_attempt;
+assign overflow_attempt = write_enable && full;
 
 wire do_read;
 assign do_read = read_request && ~empty;
+wire underflow_attempt;
+assign underflow_attempt = read_request && empty;
 
 // Trying to read and write at the same time causes a bus conflict.
 wire bus_conflict;
@@ -70,38 +62,38 @@ always @(posedge clk) begin
         buffer_reads <= 0;
         head_idx <= 0;
         tail_idx <= 0;
-        underflow_reg <= 0;
-        overflow_reg <= 0;
+        underflow <= 0;
+        overflow <= 0;
     end
-end
 
-always @(posedge clk) begin
     if (do_read) begin
         $display("in do_read");
         buffer_reads <= buffer_reads + 1;
-        data_out <= buffer[tail_idx];
+        uo_out <= buffer[tail_idx];
         tail_idx <= tail_idx + 1; // todo: mod the length in bytes. we need wraparound.
-        underflow_reg <= 0;
+        underflow <= 0;
     end
-    if (empty) begin
+
+    if (underflow_attempt) begin
             $display("setting underflow");
             // a read attempt on an empty buffer is being attempted, set a status line.
-            underflow_reg <= 1;
+            underflow <= 1;
     end
-end
 
-always @(posedge clk) begin
     if (do_write) begin
         buffer[head_idx] <= ui_in;
         tail_idx <= head_idx;
         head_idx <= head_idx + 1; // todo: use mod to wraparound.
-        overflow_reg <= 0;
+        overflow <= 0;
         buffer_writes <= buffer_writes + 1;
     end
-    if (full) begin
+
+    if (overflow_attempt) begin
         // an attempt to write to a full buffer is being attempted
-        overflow_reg <= 1;
+        overflow <= 1;
     end
+
+    uio_out <= {1'b0, 1'b0, almost_full, almost_empty, overflow, underflow, full, empty};
 end
 
 endmodule
