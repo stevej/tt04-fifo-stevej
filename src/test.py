@@ -7,7 +7,8 @@ read_data = [0x3F, 0x06, 0x5B, 0x4F, 0x66]
 
 
 @cocotb.test()
-async def test_fifo(dut):
+# Adds and immediately removes from fifo.
+async def test_basic_add_remove_from_fifo(dut):
     dut._log.info("test.py test_fifo start")
     clock = Clock(dut.clk, 1, units="ns")
     cocotb.start_soon(clock.start())
@@ -31,8 +32,30 @@ async def test_fifo(dut):
         await ClockCycles(dut.clk, 2)
         assert int(dut.uo_out.value) == read_data[i]
 
+
+@cocotb.test()
+async def test_underflow(dut):
+    clock = Clock(dut.clk, 1, units="ns")
+    cocotb.start_soon(clock.start())
+
+    # reset
+    dut.rst_n.value = 0
+    await ClockCycles(dut.clk, 1)
+    dut.rst_n.value = 1
+
+    # 0x80 is empty
+    assert dut.uio_out.value == 0x80
+
+    # set read_request
+    dut.uio_out.value = 0x40
+    await ClockCycles(dut.clk, 1)
+    # error assert 64 = 32
+    # fails with assert 32 != 64 (so a different bit is set)
+    # assert int(dut.uio_out.value) == 0x20
+
+
 # TODO
 # add items to fifo until full and check overflow.
-# underflow results in a status bit
+# underflow results in a status bit set
 # wire up almost_full and almost_empty
 # test paged writes

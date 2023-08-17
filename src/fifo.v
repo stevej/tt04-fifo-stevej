@@ -77,29 +77,30 @@ end
 
 always @(posedge clk) begin
     if (do_read) begin
+        $display("in do_read");
         buffer_reads <= buffer_reads + 1;
         data_out <= buffer[tail_idx];
         tail_idx <= tail_idx + 1; // todo: mod the length in bytes. we need wraparound.
         underflow_reg <= 0;
-        if (empty) begin
+    end
+    if (empty) begin
+            $display("setting underflow");
             // a read attempt on an empty buffer is being attempted, set a status line.
             underflow_reg <= 1;
-        end
     end
 end
 
 always @(posedge clk) begin
     if (do_write) begin
-        $display("in write path with non-full fifo");
         buffer[head_idx] <= ui_in;
         tail_idx <= head_idx;
         head_idx <= head_idx + 1; // todo: use mod to wraparound.
         overflow_reg <= 0;
         buffer_writes <= buffer_writes + 1;
-        if (full) begin
-            // an attempt to write to a full buffer is being attempted
-            overflow_reg <= 1;
-        end
+    end
+    if (full) begin
+        // an attempt to write to a full buffer is being attempted
+        overflow_reg <= 1;
     end
 end
 
