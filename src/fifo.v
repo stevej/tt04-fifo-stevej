@@ -24,6 +24,8 @@ wire read_request; // uio_out[7]
 
 reg [31:0] buffer_writes; // used?
 reg [31:0] buffer_reads;
+assign almost_full = 0; // TODO: implement
+assign almost_empty = 0; // TODO: implement
 
 assign write_enable = uio_out[6];
 assign read_request = uio_out[7];
