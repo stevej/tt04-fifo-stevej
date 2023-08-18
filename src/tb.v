@@ -26,7 +26,8 @@ module tb ();
     wire [7:0] uio_out;
     wire [7:0] uio_oe;
 
-    tt_um_fifo_stevej tt_um_fifo_stevej (
+    // INDEX_WIDTH=1 creates a buffer depth of 2 because (1<<1) == 2
+    tt_um_fifo_stevej #(.INDEX_WIDTH(1)) tt_um_fifo_stevej (
     // include power ports for the Gate Level test
     `ifdef GL_TEST
         .VPWR( 1'b1),

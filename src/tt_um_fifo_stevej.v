@@ -11,8 +11,10 @@ module tt_um_fifo_stevej (
     input  wire       clk,      // clock
     input  wire       rst_n     // reset_n - low to reset
 );
+    // This creates a buffer depth of 32 because of (1<<5)
+    parameter INDEX_WIDTH = 5;
 
     assign uio_oe = 8'b1111_1100;
 
-    fifo f1(clk, rst_n, ui_in, uo_out, uio_in, uio_out);
+    fifo #(.INDEX_WIDTH(INDEX_WIDTH)) f1(clk, rst_n, ui_in, uo_out, uio_in, uio_out);
 endmodule
