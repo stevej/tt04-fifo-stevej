@@ -10,7 +10,7 @@ parameter BUFFER_DEPTH = 1 << INDEX_WIDTH; // Do not override this unless you're
 input  wire [7:0] ui_in;    // Dedicated inputs - data sent to the fifo
 output reg [7:0] uo_out;    // Dedicated outputs - data sent from the fifo
 input  wire [7:0] uio_in;   // IOs: Bidirectional Input path
-output reg [7:0] uio_out;  // IOs: Bidirectional Output path
+output reg [7:0] uio_out;   // IOs: Bidirectional Output path
 input  wire       clk;      // clock
 input  wire       rst_n;    // reset_n - low to reset
 
@@ -45,7 +45,7 @@ wire reset;
 assign reset = ~rst_n;
 
 // full means there is the minimum possible space between head tail which is 1.
-assign full = tail_idx == ((head_idx - 1) % BUFFER_DEPTH); // todo: this doesn't work with wraparound
+assign full = tail_idx == ((head_idx - 1) % BUFFER_DEPTH);
 // empty means that there is the maxium possible space between head and tail which is 0.
 assign empty = (head_idx == tail_idx) ? 1'b1 : 1'b0;
 
@@ -63,10 +63,12 @@ assign underflow_attempt = read_request && empty;
 wire bus_conflict;
 assign bus_conflict = write_enable && read_request;
 
+assign uio_out = {1'b0, 1'b0, almost_full, almost_empty, overflow, underflow, full, empty};
+
 always @(posedge clk) begin
     if (reset) begin
-        // TODO: set buffer to empty.
-        buffer[0] <= 8'b0000_0010; // set to 2 on reset for debugging.
+        // TODO: set entire buffer to empty.
+        buffer[0] <= 8'b0000_0000;
         buffer_writes <= 0;
         buffer_reads <= 0;
         head_idx <= 0;
@@ -99,8 +101,6 @@ always @(posedge clk) begin
         // an attempt to write to a full buffer is being attempted
         overflow <= 1;
     end
-
-    uio_out <= {1'b0, 1'b0, almost_full, almost_empty, overflow, underflow, full, empty};
 end
 
 endmodule
