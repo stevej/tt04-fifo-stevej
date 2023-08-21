@@ -7,7 +7,7 @@ read_data = [0x3F, 0x06, 0x5B, 0x4F, 0x66]
 
 
 @cocotb.test()
-async def test_basic_add_remove_from_fifo(dut):
+async def test_single_add_followed_by_single_remove(dut):
     """adds and immediately removes items for a total length larger than the buffer depth"""
     dut._log.info("test.py test_fifo start")
     clock = Clock(dut.clk, 1, units="ns")
@@ -34,7 +34,7 @@ async def test_basic_add_remove_from_fifo(dut):
 
 
 @cocotb.test()
-async def test_underflow(dut):
+async def test_underflow_on_empty_fifo(dut):
     """underflow results in the underflow status bit set"""
     clock = Clock(dut.clk, 1, units="ns")
     cocotb.start_soon(clock.start())
@@ -43,13 +43,40 @@ async def test_underflow(dut):
     dut.rst_n.value = 0
     await ClockCycles(dut.clk, 2)
     dut.rst_n.value = 1
-    # await ClockCycles(dut.clk, 1)
 
     # set read_request
     dut.uio_out.value = 0x80
     await ClockCycles(dut.clk, 2)
     # empty and underflow are set
     assert int(dut.uio_out.value) == 5
+
+
+@cocotb.test()
+async def test_overflow_on_full_fifo(dut):
+    """overflow results in the over status bit set"""
+    clock = Clock(dut.clk, 1, units="ns")
+    cocotb.start_soon(clock.start())
+
+    # reset
+    dut.rst_n.value = 0
+    await ClockCycles(dut.clk, 2)
+    dut.rst_n.value = 1
+    items = [0x01, 0x02, 0x03]
+
+    # add items to fifo until the fifo is full, check the status bits
+    # on each item added.
+    for i in range(len(items)):
+        item = items[i]
+        dut._log.info("test.py writing item: {item:X}".format(item=item))
+        dut.uio_out.value = 0x40  # write_enable
+        dut.ui_in.value = items[i]  # write the item
+        if i == 0:
+            assert int(dut.uio_out.value) == 1
+        elif i == 1:
+            assert int(dut.uio_out.value) == 2
+        elif i == 2:
+            assert int(dut.uio_out.value) == 10
+        await ClockCycles(dut.clk, 2)
 
 
 # TODO
