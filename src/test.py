@@ -117,7 +117,6 @@ async def test_overflow_on_full_fifo(dut):
     dut.uio_out.value = 0x40  # write_enable
     dut.ui_in.value = items[1]  # write the item
     await ClockCycles(dut.clk, 1)
-    # dunno why we are seeing the write_enable pin reflected back for just this test
     assert int(dut.uio_out.value) == 64
 
     dut.uio_out.value = 0x40  # write_enable
@@ -136,6 +135,5 @@ async def test_overflow_on_full_fifo(dut):
 
 
 # TODO
-# add items to fifo until full and check overflow.
 # wire up almost_full and almost_empty
 # test paged writes
