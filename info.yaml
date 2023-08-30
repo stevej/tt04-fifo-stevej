@@ -69,14 +69,14 @@ documentation:
     - item[7]
 # A description of what the bidirectional I/O pins do (e.g. I2C SDA, I2C SCL, etc)
   bidirectional:
-    - empty
-    - full
-    - underflow
-    - overflow
-    - almost_empty
-    - almost_full
-    - write_enable
-    - read_enable
+    - empty (read-only)
+    - full (read-only)
+    - underflow (read-only)
+    - overflow (read-only)
+    - almost_empty (read-only)
+    - almost_full (read-only)
+    - write_enable (set this high to write a value)
+    - read_enable (set this high to read the latest entry from the FIFO)
 
 # The following fields are optional
   tag:          "fifo"           # comma separated list of tags: test, encryption, experiment, clock, animation, utility, industrial, pwm, fpga, alu, microprocessor, risc, riscv, sensor, signal generator, fft, filter, music, bcd, sound, serial, timer, random number generator, calculator, decoder, counter, puzzle, multiplier, game, oscillator,
