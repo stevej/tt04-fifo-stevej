@@ -40,7 +40,7 @@ reg [INDEX_WIDTH-1:0] tail_idx;
 
 // The number of items in the buffer. This must be one larger than the buffer depth in order
 // to hold the knowledge of how many items are being stored.
-reg [7:0] stored_items;
+reg [INDEX_WIDTH:0] stored_items;
 
 reg [7:0] buffer [BUFFER_DEPTH-1:0];
 wire reset;
