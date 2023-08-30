@@ -38,14 +38,18 @@ assign read_request = uio_out[7];
 reg [INDEX_WIDTH-1:0] head_idx;
 reg [INDEX_WIDTH-1:0] tail_idx;
 
+// The number of items in the buffer. This must be one larger than the buffer depth in order
+// to hold the knowledge of how many items are being stored.
+reg [7:0] stored_items;
+
 reg [7:0] buffer [BUFFER_DEPTH-1:0];
 wire reset;
 assign reset = ~rst_n;
 
 // full means that if we try to add an item it'll overwrite the tail.
-assign full = (((head_idx + 1) % BUFFER_DEPTH) == tail_idx) ? 1'b1: 1'b0;
+assign full = stored_items == (1<<INDEX_WIDTH) ? 1'b1 : 1'b0;
 // empty means that there are no used spaces in the buffer.
-assign empty = (head_idx == tail_idx) ? 1'b1 : 1'b0;
+assign empty = stored_items == 0 ? 1'b1 : 1'b0;
 
 wire do_write;
 assign do_write = write_enable && ~full;
@@ -70,18 +74,21 @@ always @(posedge clk) begin
         buffer_reads <= 0;
         head_idx <= 0;
         tail_idx <= 0;
+        stored_items <= 0;
     end
 
     if (do_read) begin
         buffer_reads <= buffer_reads + 1;
         uo_out <= buffer[tail_idx];
-        tail_idx <= ((tail_idx + 1) % BUFFER_DEPTH);
+        tail_idx <= (tail_idx + 1) % BUFFER_DEPTH;
+        stored_items <= stored_items - 1;
     end
 
     if (do_write) begin
         buffer[head_idx] <= ui_in;
-        head_idx <= ((head_idx + 1) % BUFFER_DEPTH);
+        head_idx <= (head_idx + 1) % BUFFER_DEPTH;
         buffer_writes <= buffer_writes + 1;
+        stored_items <= stored_items + 1;
     end
 end
 
