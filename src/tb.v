@@ -30,7 +30,7 @@ module tb ();
     tt_um_fifo_stevej
     #(.INDEX_WIDTH(2),
       .ALMOST_FULL_THRESHOLD(2),
-      .ALMOST_EMPTY_THRESHOLD(1))
+      .ALMOST_EMPTY_THRESHOLD(2))
       tt_um_fifo_stevej (
     // include power ports for the Gate Level test
     `ifdef GL_TEST

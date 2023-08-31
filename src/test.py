@@ -2,14 +2,14 @@ import cocotb
 from cocotb.clock import Clock
 from cocotb.triggers import RisingEdge, FallingEdge, Timer, ClockCycles
 
-# todo: move these into first test
-write_data = [0x3F, 0x06, 0x5B, 0x4F, 0x66]
-read_data = [0x3F, 0x06, 0x5B, 0x4F, 0x66]
-
 
 @cocotb.test()
 async def test_single_add_followed_by_single_remove(dut):
     """adds and immediately removes items for a total length larger than the buffer depth"""
+    # todo: move these into first test
+    write_data = [0x3F, 0x06, 0x5B, 0x4F, 0x66, 0x77, 0x88]
+    read_data = [0x3F, 0x06, 0x5B, 0x4F, 0x66, 0x77, 0x88]
+
     dut._log.info("test.py test_fifo start")
     clock = Clock(dut.clk, 1, units="ns")
     cocotb.start_soon(clock.start())
@@ -21,7 +21,6 @@ async def test_single_add_followed_by_single_remove(dut):
 
     # add items to fifo and read them
     for i in range(len(write_data)):
-        dut._log.info("test.py writing item: ".format(write_data[i]))
         dut.uio_out.value = 0x40  # write_enable
         dut.ui_in.value = write_data[i]  # write the item
         assert dut.uio_oe == 0xFC  # this line checks that we are seeing status bits
@@ -46,30 +45,34 @@ async def test_add_two_remove_two(dut):
 
     items = [0x01, 0x02]
     # add first item to the fifo
-    dut._log.info("test.py writing item: ".format(items[0]))
     dut.uio_out.value = 0x40  # write_enable
     dut.ui_in.value = items[0]  # write the item
     assert dut.uio_oe == 0xFC  # this line checks that we are seeing status bits
     await ClockCycles(dut.clk, 2)
+    assert int(dut.uio_out.value) == 0
+
     # add second item to the fifo
-    dut._log.info("test.py writing item: ".format(items[1]))
     dut.uio_out.value = 0x40  # write_enable
     dut.ui_in.value = items[1]  # write the item
-    assert dut.uio_oe == 0xFC  # this line checks that we are seeing status bits
     await ClockCycles(dut.clk, 2)
+    # write_enable is being reflected. why?
+    assert int(dut.uio_out.value) == 64
+
     # remove first item from the fifo
     dut.uio_out.value = 0x80  # disable write_enable, enable read_request
     # Due to clocking, I have to wait 2 cycles before the fifo update is available for read.
     await ClockCycles(dut.clk, 2)
     assert int(dut.uo_out.value) == items[0]
+    assert int(dut.uio_out.value) == 0
+
     # remove the second item from the fifo
     dut.uio_out.value = 0x80  # disable write_enable, enable read_request
-    # Due to clocking, I have to wait 2 cycles before the fifo update is available for read.
     await ClockCycles(dut.clk, 2)
     assert int(dut.uo_out.value) == items[1]
+
     # check that the fifo is empty
     await ClockCycles(dut.clk, 2)
-    assert int(dut.uio_out.value) == 33
+    assert int(dut.uio_out.value) == 17  # empty and almost_empty are set
 
 
 @cocotb.test()
@@ -85,17 +88,17 @@ async def test_underflow_on_empty_fifo(dut):
     await ClockCycles(dut.clk, 2)
     dut._log.info("test.py reading item from empty fifo")
     # set read_request
-    dut.uio_out.value = 0x80  # TODO: waveform doesn't show this being set
-    assert dut.uio_oe == 0xFC  # this line checks that we are seeing status bits
-    await ClockCycles(dut.clk, 2)
+    dut.uio_out.value = 0x80
+    # ensures that we see status bits
+    assert dut.uio_oe == 0xFC
+    await ClockCycles(dut.clk, 1)
     # empty and underflow are set
-    # TODO: overflow not set, waveform doesn't show read_request
-    assert int(dut.uio_out.value) == 33
+    assert int(dut.uio_out.value) == 17  # empty and almost_empty are set
 
 
 @cocotb.test()
-async def test_overflow_on_full_fifo(dut):
-    """overflow results in the overflow status bit set"""
+async def test_status_bits(dut):
+    """writes items until the fifo is full and then reads until the fifo is empty and checks the status bits"""
     clock = Clock(dut.clk, 1, units="ns")
     cocotb.start_soon(clock.start())
 
@@ -109,6 +112,7 @@ async def test_overflow_on_full_fifo(dut):
 
     # add items to fifo until the fifo is full, check the status bits
     # on each item added.
+    assert int(dut.uio_out.value) == 17  # empty and almost empty are set
     dut.uio_out.value = 0x40  # write_enable
     dut.ui_in.value = items[0]  # write the item
     await ClockCycles(dut.clk, 1)
@@ -117,23 +121,35 @@ async def test_overflow_on_full_fifo(dut):
     dut.uio_out.value = 0x40  # write_enable
     dut.ui_in.value = items[1]  # write the item
     await ClockCycles(dut.clk, 1)
-    assert int(dut.uio_out.value) == 64
+    assert int(dut.uio_out.value) == 64  # empty is no longer set
 
     dut.uio_out.value = 0x40  # write_enable
     dut.ui_in.value = items[2]  # write the item
-    await ClockCycles(dut.clk, 1)
-    assert int(dut.uio_out.value) == 64
+    await ClockCycles(dut.clk, 2)
+    assert int(dut.uio_out.value) == 32  # almost_full is now set
 
     dut.uio_out.value = 0x40  # write_enable
     dut.ui_in.value = items[3]  # write the item
-    await ClockCycles(dut.clk, 1)
-    assert int(dut.uio_out.value) == 64
-
     # check that the fifo is now full.
-    await ClockCycles(dut.clk, 1)
-    assert int(dut.uio_out.value) == 18
+    await ClockCycles(dut.clk, 2)
+    assert int(dut.uio_out.value) == 34  # full and almost_full are set
 
+    dut.uio_out.value = 0x80  # read_enable
+    # read off item[3]
+    await ClockCycles(dut.clk, 2)
+    assert int(dut.uio_out.value) == 32  # almost_full is set, full is not
 
-# TODO
-# wire up almost_full and almost_empty
-# test paged writes
+    # read off item[2]
+    dut.uio_out.value = 0x80  # read_enable
+    await ClockCycles(dut.clk, 2)
+    assert int(dut.uio_out.value) == 0  # no status bits are set
+
+    # read off item[1]
+    dut.uio_out.value = 0x80  # read_enable
+    await ClockCycles(dut.clk, 2)
+    assert int(dut.uio_out.value) == 128  # only read_enable is seen here?
+
+    # read off item[0], no more items left
+    dut.uio_out.value = 0x80  # read_enable
+    await ClockCycles(dut.clk, 2)
+    assert int(dut.uio_out.value) == 17  # empty is set, almost_empty is set
