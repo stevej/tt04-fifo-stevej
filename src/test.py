@@ -57,7 +57,7 @@ async def test_add_two_remove_two(dut):
     dut.uio_out.value = 0x40  # write_enable
     dut.ui_in.value = items[1]  # write the item
     await ClockCycles(dut.clk, 2)
-    # write_enable is being reflected. why?
+    # write_enable is being reflected. I think because nothing in the design is driving the line change at this point.
     assert int(dut.uio_out.value) == 64
 
     # remove first item from the fifo
@@ -149,7 +149,8 @@ async def test_status_bits(dut):
     # read off item[1]
     dut.uio_out.value = 0x80  # read_enable
     await ClockCycles(dut.clk, 2)
-    assert int(dut.uio_out.value) == 128  # only read_enable is seen here?
+    # only read_enable is seen here as nothing in the design is driving the wire to change.
+    assert int(dut.uio_out.value) == 128
 
     # read off item[0], no more items left
     dut.uio_out.value = 0x80  # read_enable
