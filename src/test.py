@@ -6,7 +6,6 @@ from cocotb.triggers import RisingEdge, FallingEdge, Timer, ClockCycles
 @cocotb.test()
 async def test_single_add_followed_by_single_remove(dut):
     """adds and immediately removes items for a total length larger than the buffer depth"""
-    # todo: move these into first test
     write_data = [0x3F, 0x06, 0x5B, 0x4F, 0x66, 0x77, 0x88]
     read_data = [0x3F, 0x06, 0x5B, 0x4F, 0x66, 0x77, 0x88]
 
