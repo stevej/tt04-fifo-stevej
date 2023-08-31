@@ -51,21 +51,22 @@ async def test_add_two_remove_two(dut):
     dut.ui_in.value = items[0]  # write the item
     assert dut.uio_oe == 0xFC  # this line checks that we are seeing status bits
     await ClockCycles(dut.clk, 2)
-    assert int(dut.uio_out.value) == 0
+    # almost_empty is set after one write
+    assert int(dut.uio_out.value) == 16
 
     # add second item to the fifo
     dut.uio_out.value = 0x40  # write_enable
     dut.ui_in.value = items[1]  # write the item
     await ClockCycles(dut.clk, 2)
-    # write_enable is being reflected. I think because nothing in the design is driving the line change at this point.
-    assert int(dut.uio_out.value) == 64
+    assert int(dut.uio_out.value) == 0
 
     # remove first item from the fifo
     dut.uio_out.value = 0x80  # disable write_enable, enable read_request
     # Due to clocking, I have to wait 2 cycles before the fifo update is available for read.
     await ClockCycles(dut.clk, 2)
     assert int(dut.uo_out.value) == items[0]
-    assert int(dut.uio_out.value) == 0
+    # almost_empty is set
+    assert int(dut.uio_out.value) == 16
 
     # remove the second item from the fifo
     dut.uio_out.value = 0x80  # disable write_enable, enable read_request
@@ -149,8 +150,8 @@ async def test_status_bits(dut):
     # read off item[1]
     dut.uio_out.value = 0x80  # read_enable
     await ClockCycles(dut.clk, 2)
-    # only read_enable is seen here as nothing in the design is driving the wire to change.
-    assert int(dut.uio_out.value) == 128
+    # almost_empty is set
+    assert int(dut.uio_out.value) == 16
 
     # read off item[0], no more items left
     dut.uio_out.value = 0x80  # read_enable
