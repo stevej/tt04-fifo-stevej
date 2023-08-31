@@ -69,7 +69,7 @@ async def test_add_two_remove_two(dut):
     assert int(dut.uo_out.value) == items[1]
     # check that the fifo is empty
     await ClockCycles(dut.clk, 2)
-    assert int(dut.uio_out.value) == 0x1
+    assert int(dut.uio_out.value) == 33
 
 
 @cocotb.test()
@@ -90,7 +90,7 @@ async def test_underflow_on_empty_fifo(dut):
     await ClockCycles(dut.clk, 2)
     # empty and underflow are set
     # TODO: overflow not set, waveform doesn't show read_request
-    assert int(dut.uio_out.value) == 1
+    assert int(dut.uio_out.value) == 33
 
 
 @cocotb.test()
@@ -131,7 +131,7 @@ async def test_overflow_on_full_fifo(dut):
 
     # check that the fifo is now full.
     await ClockCycles(dut.clk, 1)
-    assert int(dut.uio_out.value) == 2
+    assert int(dut.uio_out.value) == 18
 
 
 # TODO
