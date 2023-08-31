@@ -20,6 +20,14 @@ while !empty:
     item = read_entry()
 ```
 
+The queue works in First-Word Fall-Through mode meaning that the top item is always available on the read bus even
+if you haven't set `read_request` high. If you want to see the next item in the queue on your next read, be sure
+to set `read_request` high.
+
+`almost_full` and `almost_empty` signals exist to tell if that you can batch reads and writes. instead of checking for
+`full` or `empty` for each read or write attempt you can instead check `almost_full` or `almost_empty` and issue queries
+based on how many slots are available.
+
 
 # Want to see your own digital design taped out to an ASIC?
 Go to https://tinytapeout.com for instructions!
