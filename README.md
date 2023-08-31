@@ -24,9 +24,10 @@ The queue works in First-Word Fall-Through mode meaning that the top item is alw
 if you haven't set `read_request` high. If you want to see the next item in the queue on your next read, be sure
 to set `read_request` high.
 
-`almost_full` and `almost_empty` signals exist to tell if that you can batch reads and writes. instead of checking for
-`full` or `empty` for each read or write attempt you can instead check `almost_full` or `almost_empty` and issue queries
-based on how many slots are available. For this design taped out in TinyTapeout 4, almost_full is 28 and almost_empty is 4.
+`almost_full` and `almost_empty` signals exist so you can batch reads and writes. Instead of checking for
+`full` or `empty` on each read or write you can instead check `almost_full` or `almost_empty` and batch read or writes
+based on how many slots are available. For this design taped out in TinyTapeout 4, almost_full means 28 of 32 slots
+have been used and almost_empty means that 28 of 32 slots are free.
 
 
 # Want to see your own digital design taped out to an ASIC?
