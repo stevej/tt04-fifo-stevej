@@ -42,6 +42,8 @@ async def test_add_two_remove_two(dut):
     dut.rst_n.value = 0
     await ClockCycles(dut.clk, 2)
     dut.rst_n.value = 1
+    await ClockCycles(dut.clk, 2)
+    assert int(dut.uio_out.value) == 17  # empty and almost_empty are set
 
     items = [0x01, 0x02]
     # add first item to the fifo
