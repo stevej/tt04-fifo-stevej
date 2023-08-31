@@ -67,6 +67,10 @@ assign bus_conflict = write_enable && read_request;
 assign uio_out = {1'b0, 1'b0, almost_full, almost_empty, overflow, underflow, full, empty};
 
 always @(posedge clk) begin
+
+    // The item is always available to be read, that makes this a First-Word Fall-Through FIFO.
+    uo_out <= buffer[tail_idx];
+
     if (reset) begin
         // TODO: set entire buffer to empty, not just the first entry.
         buffer[0] <= 8'b0000_0000;
@@ -78,8 +82,8 @@ always @(posedge clk) begin
     end
 
     if (do_read) begin
+        // When a read operation is indicated, go ahead and remove the item on the buffer.
         buffer_reads <= buffer_reads + 1;
-        uo_out <= buffer[tail_idx];
         tail_idx <= (tail_idx + 1) % BUFFER_DEPTH;
         stored_items <= stored_items - 1;
     end
