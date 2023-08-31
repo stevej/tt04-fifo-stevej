@@ -26,7 +26,7 @@ to set `read_request` high.
 
 `almost_full` and `almost_empty` signals exist to tell if that you can batch reads and writes. instead of checking for
 `full` or `empty` for each read or write attempt you can instead check `almost_full` or `almost_empty` and issue queries
-based on how many slots are available.
+based on how many slots are available. For this design taped out in TinyTapeout 4, almost_full is 28 and almost_empty is 4.
 
 
 # Want to see your own digital design taped out to an ASIC?
