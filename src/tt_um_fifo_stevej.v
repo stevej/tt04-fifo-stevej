@@ -22,6 +22,6 @@ module tt_um_fifo_stevej (
 
     fifo #(.INDEX_WIDTH(INDEX_WIDTH),
            .ALMOST_FULL_THRESHOLD(ALMOST_FULL_THRESHOLD),
-           .ALMOST_EMPTY_THRESHOLD(ALMOST_EMPTY_THRESHOLD)))
+           .ALMOST_EMPTY_THRESHOLD(ALMOST_EMPTY_THRESHOLD))
     f1(clk, rst_n, ui_in, uo_out, uio_in, uio_out);
 endmodule
