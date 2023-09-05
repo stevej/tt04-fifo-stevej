@@ -33,6 +33,8 @@ reg [31:0] buffer_reads;
 assign almost_full = ALMOST_FULL_THRESHOLD < stored_items;
 assign almost_empty = ALMOST_EMPTY_THRESHOLD > stored_items;
 
+wire [5:0] unused;
+assign unused = uio_in[5:0];
 assign write_enable = uio_in[6];
 assign read_request = uio_in[7];
 
@@ -59,10 +61,6 @@ assign overflow = write_enable && full;
 wire do_read;
 assign do_read = read_request && ~empty;
 assign underflow = read_request && empty;
-
-// Internal debug signal: Trying to read and write at the same time causes a bus conflict.
-wire bus_conflict;
-assign bus_conflict = write_enable && read_request;
 
 // bits 6 & 7 are user input bits, we don't set them here.
 assign uio_out = {1'b0, 1'b0, almost_full, almost_empty, overflow, underflow, full, empty};
