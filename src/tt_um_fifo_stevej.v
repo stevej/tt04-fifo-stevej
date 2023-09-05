@@ -20,8 +20,16 @@ module tt_um_fifo_stevej (
     // and the last 6 bits as writable by the user.
     assign uio_oe = 8'b1111_1100;
 
-    fifo #(.INDEX_WIDTH(INDEX_WIDTH),
-           .ALMOST_FULL_THRESHOLD(ALMOST_FULL_THRESHOLD),
-           .ALMOST_EMPTY_THRESHOLD(ALMOST_EMPTY_THRESHOLD))
-    f1(clk, rst_n, ui_in, uo_out, uio_in, uio_out);
+    fifo #(
+        .INDEX_WIDTH(INDEX_WIDTH),
+        .ALMOST_FULL_THRESHOLD(ALMOST_FULL_THRESHOLD),
+        .ALMOST_EMPTY_THRESHOLD(ALMOST_EMPTY_THRESHOLD)
+    ) fifo_inst(
+        .clk(clk),
+        .rst_n(rst_n),
+        .ui_in(ui_in),
+        .uo_out(uo_out),
+        .uio_in(uio_in),
+        .uio_out(uio_out)
+        );
 endmodule
