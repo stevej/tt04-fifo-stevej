@@ -23,8 +23,8 @@ wire underflow; // uio_out[2]
 wire overflow; // uio_out[3]
 wire almost_empty; // uio_out[4]
 wire almost_full; // uio_out[5]
-wire write_enable; // uio_out[6]
-wire read_request; // uio_out[7]
+wire write_enable; // uio_in[6]
+wire read_request; // uio_in[7]
 
 // internal counters for debugging
 reg [31:0] buffer_writes;
@@ -33,8 +33,8 @@ reg [31:0] buffer_reads;
 assign almost_full = ALMOST_FULL_THRESHOLD < stored_items;
 assign almost_empty = ALMOST_EMPTY_THRESHOLD > stored_items;
 
-assign write_enable = uio_out[6];
-assign read_request = uio_out[7];
+assign write_enable = uio_in[6];
+assign read_request = uio_in[7];
 
 reg [INDEX_WIDTH-1:0] head_idx;
 reg [INDEX_WIDTH-1:0] tail_idx;

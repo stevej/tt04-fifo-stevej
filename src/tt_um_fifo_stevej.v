@@ -18,7 +18,7 @@ module tt_um_fifo_stevej (
 
     // Sets the first two bits as being writable by the design
     // and the last 6 bits as writable by the user.
-    assign uio_oe = 8'b1111_1100;
+    assign uio_oe = 8'b0011_1111;
 
     fifo #(
         .INDEX_WIDTH(INDEX_WIDTH),
