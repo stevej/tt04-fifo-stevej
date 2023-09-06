@@ -6,7 +6,8 @@ from cocotb.triggers import RisingEdge, FallingEdge, Timer, ClockCycles
 @cocotb.test()
 async def test_single_add_followed_by_single_remove(dut):
     """adds and immediately removes items for a total length larger than the buffer depth"""
-    items = [0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7]
+    items = [0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9,
+             0xA, 0xB, 0xC, 0xD, 0xE, 0xF, 0x10, 0x11, 0x12]
 
     dut._log.info("test.py test_fifo start")
     clock = Clock(dut.clk, 1, units="ns")
