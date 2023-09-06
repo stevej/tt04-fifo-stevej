@@ -66,7 +66,7 @@ assign underflow = read_request && empty;
 // bits 6 & 7 are user input bits, we don't set them here.
 assign uio_out = {1'b0, 1'b0, almost_full, almost_empty, overflow, underflow, full, empty};
 
-always @(posedge clk or posedge rst_n) begin
+always @(posedge clk) begin
 
     // The first item written is always available to be read, that makes this a First-Word Fall-Through FIFO.
     uo_out <= buffer[tail_idx];
@@ -80,20 +80,18 @@ always @(posedge clk or posedge rst_n) begin
         tail_idx <= 0;
         stored_items <= 0;
         uo_out <= 8'b0000_0000;
-    end
-
-    if (do_read) begin
-        // When a read operation is indicated, go ahead and remove the item on the buffer.
-        buffer_reads <= buffer_reads + 1;
-        tail_idx <= (tail_idx + 1) % BUFFER_DEPTH;
-        stored_items <= stored_items - 1;
-    end
-
-    if (do_write) begin
-        buffer[head_idx] <= ui_in;
-        head_idx <= (head_idx + 1) % BUFFER_DEPTH;
-        buffer_writes <= buffer_writes + 1;
-        stored_items <= stored_items + 1;
+    end else begin
+        if (do_read) begin
+            // When a read operation is indicated, go ahead and remove the item on the buffer.
+            buffer_reads <= buffer_reads + 1;
+            tail_idx <= (tail_idx + 1) % BUFFER_DEPTH;
+            stored_items <= stored_items - 1;
+        end else if (do_write) begin
+           buffer[head_idx] <= ui_in;
+            head_idx <= (head_idx + 1) % BUFFER_DEPTH;
+            buffer_writes <= buffer_writes + 1;
+            stored_items <= stored_items + 1;
+        end
     end
 end
 
