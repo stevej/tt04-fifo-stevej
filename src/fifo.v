@@ -79,6 +79,7 @@ always @(posedge clk) begin
         head_idx <= 0;
         tail_idx <= 0;
         stored_items <= 0;
+        uo_out <= 8'b0000_0000;
     end
 
     if (do_read) begin
