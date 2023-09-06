@@ -66,7 +66,7 @@ assign underflow = read_request && empty;
 // bits 6 & 7 are user input bits, we don't set them here.
 assign uio_out = {1'b0, 1'b0, almost_full, almost_empty, overflow, underflow, full, empty};
 
-always @(posedge clk) begin
+always @(posedge clk or posedge reset) begin
 
     // The first item written is always available to be read, that makes this a First-Word Fall-Through FIFO.
     uo_out <= buffer[tail_idx];
