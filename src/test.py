@@ -36,7 +36,7 @@ async def test_single_add_followed_by_single_remove(dut):
         assert int(dut.uo_out.value) == items[i]
 
 
-# @cocotb.test()
+@cocotb.test()
 async def test_add_two_remove_two(dut):
     "add two items, remove two items, check that empty is true"
     clock = Clock(dut.clk, 1, units="ns")
@@ -67,7 +67,7 @@ async def test_add_two_remove_two(dut):
     dut.uio_out.value = 0x40  # write_enable
     dut.ui_in.value = items[1]  # write the item
     await ClockCycles(dut.clk, 2)
-    assert int(dut.uio_out.value) == 32
+    assert int(dut.uio_out.value) == 64
 
     # remove first item from the fifo
     dut.uio_in.value = 0x80  # disable write_enable, enable read_request
@@ -75,7 +75,7 @@ async def test_add_two_remove_two(dut):
     await ClockCycles(dut.clk, 2)
     assert int(dut.uo_out.value) == items[0]
     # almost_empty is set
-    assert int(dut.uio_out.value) == 32
+    assert int(dut.uio_out.value) == 16
 
     # remove the second item from the fifo
     dut.uio_in.value = 0x80  # disable write_enable, enable read_request
