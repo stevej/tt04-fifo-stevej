@@ -3,10 +3,8 @@
 
 module tt_um_fifo_stevej #(
     // This creates a buffer depth of 16 because of (1<<4)
-    parameter INDEX_WIDTH = 4,
-    parameter ALMOST_FULL_THRESHOLD = 12,
-    parameter ALMOST_EMPTY_THRESHOLD = 4)
-(
+    parameter INDEX_WIDTH = 4, ALMOST_FULL_THRESHOLD = 12, ALMOST_EMPTY_THRESHOLD = 4
+    )(
     input  wire [7:0] ui_in,    // Dedicated inputs - data sent to the fifo
     output wire [7:0] uo_out,   // Dedicated outputs - data sent from the fifo
     input  wire [7:0] uio_in,   // IOs: Bidirectional Input path
