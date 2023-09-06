@@ -1,7 +1,10 @@
 `default_nettype none
 `timescale 1ns/1ps
 
-module tt_um_fifo_stevej (
+module tt_um_fifo_stevej #(
+    // This creates a buffer depth of 16 because of (1<<4)
+    parameter INDEX_WIDTH = 4, ALMOST_FULL_THRESHOLD = 12, ALMOST_EMPTY_THRESHOLD = 4
+)(
     `ifdef GL_TEST
         .VPWR( 1'b1),
         .VGND( 1'b0),
@@ -20,7 +23,11 @@ module tt_um_fifo_stevej (
     // and the last 6 bits as writable by the user.
     assign uio_oe = 8'b0011_1111;
 
-    fifo fifo_inst(
+    fifo #(
+        .INDEX_WIDTH(INDEX_WIDTH),
+        .ALMOST_FULL_THRESHOLD(ALMOST_FULL_THRESHOLD),
+        .ALMOST_EMPTY_THRESHOLD(ALMOST_EMPTY_THRESHOLD)
+    ) fifo_inst(
         .clk(clk),
         .rst_n(rst_n),
         .ui_in(ui_in),
