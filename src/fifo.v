@@ -4,7 +4,7 @@
 /**
  * A 8-bit wide, fifo of depth 1<<INDEX_WIDTH.
  **/
-module fifo(clk, rst_n, ui_in, uo_out, uio_in, uio_out);
+module fifo(clk, rst_n, ui_in, uo_out, uio_in, uio_out, ena);
 parameter INDEX_WIDTH = 4;  // The depth of the buffer is a derived value from the width of the index. 1<<INDEX_WIDTH
 parameter BUFFER_DEPTH = 1 << INDEX_WIDTH; // Warning: Do not override this unless you're a big brain genius.
 parameter ALMOST_FULL_THRESHOLD = 12; // almost_full will be pulled high when we have fewer than this many slots free.
@@ -15,6 +15,7 @@ input  wire [7:0] uio_in;    // IOs: Bidirectional Input path
 output wire [7:0] uio_out;   // IOs: Bidirectional Output path
 input  wire clk;             // clock
 input  wire rst_n;           // reset_n - low to reset
+input  wire ena;
 
 // the following flags are assigned as status pins on uio_out
 wire empty; // uio_out[0]
@@ -55,8 +56,8 @@ assign full = stored_items == (1<<INDEX_WIDTH) ? 1'b1 : 1'b0;
 assign empty = stored_items == 0 ? 1'b1 : 1'b0;
 
 wire do_write;
-assign do_write = write_enable && ~full;
-assign overflow = write_enable && full;
+assign do_write = ena && write_enable && ~full;
+assign overflow = ena && write_enable && full;
 
 wire do_read;
 assign do_read = read_request && ~empty;

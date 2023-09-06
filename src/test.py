@@ -12,6 +12,7 @@ async def test_single_add_followed_by_single_remove(dut):
     clock = Clock(dut.clk, 1, units="ns")
     cocotb.start_soon(clock.start())
 
+    dut.ena.value = 1
     # reset
     dut.rst_n.value = 0
     await ClockCycles(dut.clk, 2)
@@ -39,6 +40,7 @@ async def test_add_two_remove_two(dut):
     clock = Clock(dut.clk, 1, units="ns")
     cocotb.start_soon(clock.start())
 
+    dut.ena.value = 1
     # reset
     dut.uio_in.value = 0x0
     dut.rst_n.value = 0
@@ -87,6 +89,7 @@ async def test_underflow_on_empty_fifo(dut):
     clock = Clock(dut.clk, 1, units="ns")
     cocotb.start_soon(clock.start())
 
+    dut.ena.value = 1
     # reset
     dut.uio_in.value = 0x0
     dut.rst_n.value = 0
@@ -107,6 +110,7 @@ async def test_status_bits(dut):
     clock = Clock(dut.clk, 1, units="ns")
     cocotb.start_soon(clock.start())
 
+    dut.ena.value = 1
     # reset
     dut.uio_in.value = 0x0
     dut.rst_n.value = 0
