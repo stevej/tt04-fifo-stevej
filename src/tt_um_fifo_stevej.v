@@ -2,6 +2,10 @@
 `timescale 1ns/1ps
 
 module tt_um_fifo_stevej (
+    `ifdef GL_TEST
+        .VPWR( 1'b1),
+        .VGND( 1'b0),
+    `endif
     input  wire [7:0] ui_in,    // Dedicated inputs - data sent to the fifo
     output wire [7:0] uo_out,   // Dedicated outputs - data sent from the fifo
     input  wire [7:0] uio_in,   // IOs: Bidirectional Input path
