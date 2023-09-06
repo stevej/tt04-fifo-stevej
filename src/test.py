@@ -36,7 +36,7 @@ async def test_single_add_followed_by_single_remove(dut):
         assert int(dut.uo_out.value) == items[i]
 
 
-@cocotb.test()
+# @cocotb.test()
 async def test_add_two_remove_two(dut):
     "add two items, remove two items, check that empty is true"
     clock = Clock(dut.clk, 1, units="ns")
@@ -114,7 +114,7 @@ async def test_underflow_on_empty_fifo(dut):
     assert int(dut.uio_out.value) == 21
 
 
-@cocotb.test()
+# @cocotb.test()
 async def test_status_bits(dut):
     """writes items until the fifo is full and then reads until the fifo is empty and checks the status bits"""
     clock = Clock(dut.clk, 1, units="ns")

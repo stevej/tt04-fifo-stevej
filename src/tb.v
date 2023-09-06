@@ -26,11 +26,7 @@ module tb ();
     wire [7:0] uio_out;
     wire [7:0] uio_oe;
 
-    tt_um_fifo_stevej 
-    #(.INDEX_WIDTH(2),
-      .ALMOST_FULL_THRESHOLD(2),
-      .ALMOST_EMPTY_THRESHOLD(2))
-      tt_um_fifo_stevej (
+    tt_um_fifo_stevej fifo (
     // include power ports for the Gate Level test
     `ifdef GL_TEST
         .VPWR( 1'b1),
