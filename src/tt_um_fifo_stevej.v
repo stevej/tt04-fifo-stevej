@@ -12,9 +12,9 @@ module tt_um_fifo_stevej (
     input  wire       clk,      // clock
     input  wire       rst_n     // reset_n - low to reset
 );
-    // This creates a buffer depth of 32 because of (1<<5)
-    parameter INDEX_WIDTH = 5;
-    parameter ALMOST_FULL_THRESHOLD = 28;
+    // This creates a buffer depth of 16 because of (1<<4)
+    parameter INDEX_WIDTH = 4;
+    parameter ALMOST_FULL_THRESHOLD = 12;
     parameter ALMOST_EMPTY_THRESHOLD = 4;
 
     // Sets the first two bits as being writable by the design

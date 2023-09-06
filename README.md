@@ -1,6 +1,6 @@
 ![](../../workflows/gds/badge.svg) ![](../../workflows/docs/badge.svg) ![](../../workflows/wokwi_test/badge.svg)
 
-# 8-bit FIFO with a depth of 32 for TinyTapeout 4
+# 8-bit FIFO with a depth of 16 for TinyTapeout 4
 
 TinyTapeout is an educational project that aims to make it easier and cheaper than ever to get your digital designs manufactured on a real chip! This is my submission for TinyTapeout 4 in early September 2023.
 
@@ -26,8 +26,8 @@ to set `read_request` high.
 
 `almost_full` and `almost_empty` signals exist so you can batch reads and writes. Instead of checking for
 `full` or `empty` on each read or write you can instead check `almost_full` or `almost_empty` and batch read or writes
-based on how many slots are available. For this design taped out in TinyTapeout 4, almost_full means 28 of 32 slots
-have been used and almost_empty means that 28 of 32 slots are free.
+based on how many slots are available. For this design taped out in TinyTapeout 4, almost_full means 12 of 16 slots
+have been used and almost_empty means that 12 of 16 slots are free.
 
 
 # Want to see your own digital design taped out to an ASIC?

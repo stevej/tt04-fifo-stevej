@@ -5,9 +5,9 @@
  * A 8-bit wide, fifo of depth 1<<INDEX_WIDTH.
  **/
 module fifo(clk, rst_n, ui_in, uo_out, uio_in, uio_out);
-parameter INDEX_WIDTH = 5;  // The depth of the buffer is a derived value from the width of the index. 1<<INDEX_WIDTH
+parameter INDEX_WIDTH = 4;  // The depth of the buffer is a derived value from the width of the index. 1<<INDEX_WIDTH
 parameter BUFFER_DEPTH = 1 << INDEX_WIDTH; // Warning: Do not override this unless you're a big brain genius.
-parameter ALMOST_FULL_THRESHOLD = 28; // almost_full will be pulled high when we have fewer than this many slots free.
+parameter ALMOST_FULL_THRESHOLD = 12; // almost_full will be pulled high when we have fewer than this many slots free.
 parameter ALMOST_EMPTY_THRESHOLD = 4; // almost_empty will be pulled high when we have more than this many slots free.
 input  wire [7:0] ui_in;     // Dedicated inputs - data sent to the fifo
 output reg [7:0] uo_out;     // Dedicated outputs - data sent from the fifo
