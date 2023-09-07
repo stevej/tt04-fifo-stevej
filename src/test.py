@@ -115,7 +115,7 @@ async def test_underflow_on_empty_fifo(dut):
     assert int(dut.uio_out.value) == 21
 
 
-# @cocotb.test()
+@cocotb.test()
 async def test_status_bits(dut):
     """writes items until the fifo is full and then reads until the fifo is empty and checks the status bits"""
     clock = Clock(dut.clk, 1, units="ns")
@@ -138,46 +138,179 @@ async def test_status_bits(dut):
     # on each item added.
     assert int(dut.uio_out.value) == 17  # empty and almost empty are set
     dut.uio_in.value = 0x40  # write_enable
-    dut.ui_in.value = items[0]  # write the item
+    dut.ui_in.value = 0x01  # write the item
     await ClockCycles(dut.clk, 1)
     assert int(dut.uio_out.value) == 17
 
     dut.uio_in.value = 0x40  # write_enable
-    dut.ui_in.value = items[1]  # write the item
+    dut.ui_in.value = 0x02  # write the item
     await ClockCycles(dut.clk, 1)
     assert int(dut.uio_out.value) == 16  # almost_empty is set
 
     dut.uio_in.value = 0x40  # write_enable
-    dut.ui_in.value = items[2]  # write the item
-    await ClockCycles(dut.clk, 2)
-    assert int(dut.uio_out.value) == 32  # almost_full is now set
+    dut.ui_in.value = 0x03  # write the item
+    await ClockCycles(dut.clk, 1)
+    assert int(dut.uio_out.value) == 16  # almost_empty is set
 
     dut.uio_in.value = 0x40  # write_enable
-    dut.ui_in.value = items[3]  # write the item
+    dut.ui_in.value = 0x04  # write the item
     await ClockCycles(dut.clk, 1)
-    # check that the fifo is now full.
-    dut.uio_in.value = 0x0  # we are checking the lines, not reading
-    await ClockCycles(dut.clk, 2)
-    # full and almost_full are set.
-    assert int(dut.uio_out.value) == 34
+    assert int(dut.uio_out.value) == 16  # almost_empty is set
 
-    dut.uio_in.value = 0x80  # read_enable
-    # read off item[3]
-    await ClockCycles(dut.clk, 2)
-    assert int(dut.uio_out.value) == 32  # almost_full is set, full is not
-
-    # read off item[2]
-    dut.uio_in.value = 0x80  # read_enable
+    dut.uio_in.value = 0x40  # write_enable
+    dut.ui_in.value = 0x05  # write the item
     await ClockCycles(dut.clk, 1)
     assert int(dut.uio_out.value) == 0  # no status bits are set
 
-    # read off item[1]
-    # dut.uio_in.value = 0x80  # read_enable
+    dut.uio_in.value = 0x40  # write_enable
+    dut.ui_in.value = 0x06  # write the item
     await ClockCycles(dut.clk, 1)
-    # almost_empty is set as there are fewer than two items left
-    assert int(dut.uio_out.value) == 16
+    assert int(dut.uio_out.value) == 0  # no status bits are set
 
-    # read off item[0], no more items left
+    dut.uio_in.value = 0x40  # write_enable
+    dut.ui_in.value = 0x07  # write the item
+    await ClockCycles(dut.clk, 1)
+    assert int(dut.uio_out.value) == 0  # no status bits are set
+
+    dut.uio_in.value = 0x40  # write_enable
+    dut.ui_in.value = 0x08  # write the item
+    await ClockCycles(dut.clk, 1)
+    assert int(dut.uio_out.value) == 0  # no status bits are set
+
+    dut.uio_in.value = 0x40  # write_enable
+    dut.ui_in.value = 0x09  # write the item
+    await ClockCycles(dut.clk, 1)
+    assert int(dut.uio_out.value) == 0  # no status bits are set
+
+    dut.uio_in.value = 0x40  # write_enable
+    dut.ui_in.value = 0xA  # write the item
+    await ClockCycles(dut.clk, 1)
+    assert int(dut.uio_out.value) == 0  # no status bits are set
+
+    dut.uio_in.value = 0x40  # write_enable
+    dut.ui_in.value = 0xB  # write the item
+    await ClockCycles(dut.clk, 1)
+    assert int(dut.uio_out.value) == 0  # no status bits are set
+
+    dut.uio_in.value = 0x40  # write_enable
+    dut.ui_in.value = 0xC  # write the item
+    await ClockCycles(dut.clk, 1)
+    assert int(dut.uio_out.value) == 0  # no status bits are set
+
+    dut.uio_in.value = 0x40  # write_enable
+    dut.ui_in.value = 0xD  # write the item
+    await ClockCycles(dut.clk, 1)
+    assert int(dut.uio_out.value) == 0  # no status bits are set
+
+    dut.uio_in.value = 0x40  # write_enable
+    dut.ui_in.value = 0xE  # write the item
+    await ClockCycles(dut.clk, 1)
+    # almost_full is set
+    assert int(dut.uio_out.value) == 32
+
+    dut.uio_in.value = 0x40  # write_enable
+    dut.ui_in.value = 0xF  # write the item
+    await ClockCycles(dut.clk, 1)
+    assert int(dut.uio_out.value) == 32  # almost_full is set
+
+    dut.uio_in.value = 0x40  # write_enable
+    dut.ui_in.value = 0x10  # write the item
+    await ClockCycles(dut.clk, 1)
+    assert int(dut.uio_out.value) == 32  # almost_full is set
+
+    await ClockCycles(dut.clk, 1)
+    # check that the fifo is now full.
+    dut.uio_in.value = 0x0  # we are checking the lines, not reading
+    await ClockCycles(dut.clk, 1)
+    # almost_full and full are set
+    assert int(dut.uio_out.value) == 34
+    await ClockCycles(dut.clk, 1)
+
+    # Now we read down 16 items and check status bits carefully on the way down.
+
     dut.uio_in.value = 0x80  # read_enable
     await ClockCycles(dut.clk, 1)
-    assert int(dut.uio_out.value) == 21  # empty is set, almost_empty is set
+    assert int(dut.uo_out.value) == 0x1
+    # almost_full and full are set even though we just read the first item. it is full for one more cycle.
+    assert int(dut.uio_out.value) == 34
+
+    dut.uio_in.value = 0x80  # read_enable
+    await ClockCycles(dut.clk, 2)  # TODO: why does this need two cycles?
+    assert int(dut.uo_out.value) == 0x2
+    assert int(dut.uio_out.value) == 32  # almost_full is set
+
+    dut.uio_in.value = 0x80  # read_enable
+    await ClockCycles(dut.clk, 1)
+    assert int(dut.uo_out.value) == 0x3
+    assert int(dut.uio_out.value) == 32  # almost_full is set
+
+    dut.uio_in.value = 0x80  # read_enable
+    await ClockCycles(dut.clk, 1)
+    assert int(dut.uo_out.value) == 0x4
+    assert int(dut.uio_out.value) == 0  # no status bits are set
+
+    dut.uio_in.value = 0x80  # read_enable
+    await ClockCycles(dut.clk, 1)
+    assert int(dut.uo_out.value) == 0x5
+    assert int(dut.uio_out.value) == 0  # no status bits are set
+
+    dut.uio_in.value = 0x80  # read_enable
+    await ClockCycles(dut.clk, 1)
+    assert int(dut.uo_out.value) == 0x6
+    assert int(dut.uio_out.value) == 0  # no status bits are set
+
+    dut.uio_in.value = 0x80  # read_enable
+    await ClockCycles(dut.clk, 1)
+    assert int(dut.uo_out.value) == 0x7
+    assert int(dut.uio_out.value) == 0  # no status bits are set
+
+    dut.uio_in.value = 0x80  # read_enable
+    await ClockCycles(dut.clk, 1)
+    assert int(dut.uo_out.value) == 0x8
+    assert int(dut.uio_out.value) == 0  # no status bits are set
+
+    dut.uio_in.value = 0x80  # read_enable
+    await ClockCycles(dut.clk, 1)
+    assert int(dut.uo_out.value) == 0x9
+    assert int(dut.uio_out.value) == 0  # no status bits are set
+
+    dut.uio_in.value = 0x80  # read_enable
+    await ClockCycles(dut.clk, 1)
+    assert int(dut.uo_out.value) == 0xA
+    assert int(dut.uio_out.value) == 0  # no status bits are set
+
+    dut.uio_in.value = 0x80  # read_enable
+    await ClockCycles(dut.clk, 1)
+    assert int(dut.uo_out.value) == 0xB
+    assert int(dut.uio_out.value) == 0  # no status bits are set
+
+    dut.uio_in.value = 0x80  # read_enable
+    await ClockCycles(dut.clk, 1)
+    assert int(dut.uo_out.value) == 0xC
+    assert int(dut.uio_out.value) == 0  # no status bits are set
+
+    dut.uio_in.value = 0x80  # read_enable
+    await ClockCycles(dut.clk, 1)
+    assert int(dut.uo_out.value) == 0xD
+    assert int(dut.uio_out.value) == 16  # almost_empty is set
+
+    dut.uio_in.value = 0x80  # read_enable
+    await ClockCycles(dut.clk, 1)
+    assert int(dut.uo_out.value) == 0xE
+    assert int(dut.uio_out.value) == 16  # almost_empty is set
+
+    dut.uio_in.value = 0x80  # read_enable
+    await ClockCycles(dut.clk, 1)
+    assert int(dut.uo_out.value) == 0xF
+    assert int(dut.uio_out.value) == 16  # almost_empty is set
+
+    dut.uio_in.value = 0x80  # read_enable
+    await ClockCycles(dut.clk, 1)
+    assert int(dut.uo_out.value) == 0x10
+    # almost_empty, underflow, and empty are set
+    assert int(dut.uio_out.value) == 21
+
+    dut.uio_in.value = 0x0  # just checking status bits
+    await ClockCycles(dut.clk, 1)
+    # empty and almost_empty are set
+    assert int(dut.uio_out.value) == 17
